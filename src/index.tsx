@@ -60,7 +60,7 @@ interface UseClipboardOptions {
    */
   text?: Text
   /**
-   * Duration for the transition sequence.
+   * Durations for the transition states.
    *
    * Note: If a `number` is provided it will only apply to the
    * `entered` transition state.
@@ -69,11 +69,35 @@ interface UseClipboardOptions {
 }
 
 interface UseClipboardReturnType {
+  /**
+   * Resolves with a copy of the textual contents of the system clipboard.
+   */
   readText(): Promise<string>
+  /**
+   * Writes the text specified in the UseClipboardOptions or the first
+   * argument of the function to the system clipboard.
+   */
   writeText: (text?: Text | React.SyntheticEvent) => Promise<void>
+  /**
+   * Any error thrown while writing to or reading from the clipboard.
+   */
   error: null | Error
   status: {
+    /**
+     * Various states for the writeText function.
+     *
+     * Commonly used for a simple indicator that text has been copied to
+     * the clipboard.
+     *
+     * Note: The `resolve` state will persist for the duration of the timeout.
+     */
     copy: CopyStatus
+    /**
+     * Various states for the writeText function.
+     * 
+     * Commonly use for a sequenced indicator that text has been copied to
+     * the clipboard.
+     */
     transition: TransitionStatus
   }
 }
