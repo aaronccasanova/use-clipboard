@@ -39,6 +39,7 @@
   "author": "Aaron Casanova",
   "module": "dist/use-clipboard.esm.js",
   "access": "public",
+  "private": "false",
   "size-limit": [
     {
       "path": "dist/use-clipboard.cjs.production.min.js",
