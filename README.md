@@ -1,181 +1,196 @@
-# TSDX React w/ Storybook User Guide
+# use-clipboard 
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+React hook wrapping the Web Clipboard API.
 
-> This TSDX setup is meant for developing React component libraries (not apps!) that can be published to NPM. If you’re looking to build a React-based app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
-
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
-
-## Commands
-
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
-
-The recommended workflow is to run TSDX in one terminal:
+## Usage
 
 ```bash
-npm start # or yarn start
+npm install use-clipboard 
 ```
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
-
-Then run either Storybook or the example playground:
-
-### Storybook
-
-Run inside another terminal:
-
-```bash
-yarn storybook
+```tsx
+import { useClipboard } from 'use-clipboard'
 ```
 
-This loads the stories from `./stories`.
+## usePortal Options
 
-> NOTE: Stories should reference the components as if using the library, similar to the example playground. This means importing from the root project directory. This has been aliased in the tsconfig and the storybook webpack config as a helper.
-
-### Example
-
-Then run the example inside another:
-
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
-```
-
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, we use [Parcel's aliasing](https://parceljs.org/module_resolution.html#aliases).
-
-To do a one-off build, use `npm run build` or `yarn build`.
-
-To run tests, use `npm test` or `yarn test`.
-
-## Configuration
-
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-### Bundle analysis
-
-Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `npm run size` and visulize it with `npm run analyze`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-/stories
-  Thing.stories.tsx # EDIT THIS
-/.storybook
-  main.js
-  preview.js
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
-```
-
-#### React Testing Library
-
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
-
-### Rollup
-
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
-
-### TypeScript
-
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
-
-## Continuous Integration
-
-### GitHub Actions
-
-Two actions are added by default:
-
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [size-limit](https://github.com/ai/size-limit)
-
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
-
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
+```tsx
+interface UseClipboardOptions {
+  /**
+   * Content to write to the clipboard.
+   */
+  text?: Text
+  /**
+   * Duration for the transition sequence.
+   *
+   * Note: If a `number` is provided it will only apply to the
+   * `entered` transition state.
+   */
+  timeout?: number | {
+    entering?: number
+    entered?: number
+    exiting?: number
+  }
 }
 ```
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+## useClipboard ReturnType
 
-## Module Formats
-
-CJS, ESModules, and UMD module formats are supported.
-
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
-
-## Deploying the Example Playground
-
-The Playground is just a simple [Parcel](https://parceljs.org) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
-
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
+```tsx
+interface UseClipboardReturnType {
+  /**
+   * Resolves with a copy of the textual contents of the system clipboard.
+   */
+  readText(): Promise<string>
+  /**
+   * Writes the text specified in the UseClipboardOptions or the first
+   * argument of the function to the system clipboard.
+   */
+  writeText: (text?: Text | React.SyntheticEvent) => Promise<void>
+  /**
+   * Any error thrown while writing to or reading from the clipboard.
+   */
+  error: null | Error
+  status: {
+    /**
+     * Various states for the writeText function.
+     *
+     * Commonly used for a simple indicator that text has been copied to
+     * the clipboard.
+     *
+     * Note: The `resolve` state will persist for the duration of the timeout.
+     */
+    copy: 'idle' | 'resolved' | 'rejected'
+    /**
+     * Various states for the writeText function.
+     * 
+     * Commonly use for a sequenced indicator that text has been copied to
+     * the clipboard.
+     */
+    transition: 'entering' | 'entered' | 'exiting' | 'exited'
+  }
+}
 ```
 
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
+### Example: Simple Copy To Clipboard
 
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
+[Demo](https://1pb5m.csb.app/) • [Code Sandbox](https://codesandbox.io/s/simple-notification-1pb5m)
+
+```tsx
+import { useClipboard } from 'use-clipboard'
+
+function App() {
+  const [text, setText] = React.useState('hi')
+
+  const { status, writeText } = useClipboard({
+    text,
+    timeout: 2000,
+  })
+
+  return (
+    <div>
+      <h1>Simple Copy To Clipboard</h1>
+      <h2>Copy Status: {status.copy}</h2>
+      <h2>Transition Status: {status.transition}</h2>
+
+      <input
+        type="text"
+        value={text}
+        onChange={e => setText(e.target.value)}
+      />
+      <button onClick={writeText}>
+        {status.copy === 'resolved' ? 'copied' : 'copy'}
+      </button>
+
+      <h2>Paste Here:</h2>
+      <input type="text" />
+    </div>
+  )
+}
 ```
 
-## Named Exports
+### Example: Sequenced Copy To Clipboard
 
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
+[Demo](https://e284g.csb.app/) • [Code Sandbox](https://codesandbox.io/s/stacked-notification-e284g)
 
-## Including Styles
+```tsx
+import { useClipboard } from 'use-clipboard'
 
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
+function App() {
+  const [text, setText] = React.useState('hi')
 
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
+  const { status, writeText } = useClipboard({
+    text,
+    timeout: {
+      entered: 2000,
+      exiting: 250,
+    },
+  })
 
-## Publishing to NPM
+  const isCopied = (
+    status.copy === 'resolved' && status.transition !== 'exiting'
+  )
 
-We recommend using [np](https://github.com/sindresorhus/np).
+  return (
+    <div>
+      <h1>Sequence Copy Clipboard</h1>
+      <h2>Basic Status: {status.copy}</h2>
+      <h2>Transition Status: {status.transition}</h2>
 
-## Usage with Lerna
+      <input
+        type="text"
+        value={text}
+        onChange={e => setText(e.target.value)}
+      />
+      <Button onClick={writeText}>
+        <Tooltip $on={isCopied}>
+          {status.copy === 'resolved' ? 'copied' : 'copy'}
+        </Tooltip>
+        {isCopied ? '✔️' : '📋'}
+      </Button>
 
-When creating a new package with TSDX within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
-
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
-
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
-
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
+      <h2>Paste Here:</h2>
+      <input type="text" />
+    </div>
+  )
+}
 ```
 
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/palmerhq/tsdx/issues/64)
+### Example: Simple Read From Clipboard
+
+[Demo](https://gx5wl.csb.app/) • [Code Sandbox](https://codesandbox.io/s/replace-notification-gx5wl)
+
+```tsx
+import { useClipboard } from 'use-clipboard'
+
+function App() {
+  const [text, setText] = React.useState('hi')
+
+  const { status, writeText, readText } = useClipboard({
+    text,
+    timeout: 2000,
+  })
+
+  const [clipboardText, setClipboardText] = React.useState('')
+
+  return (
+    <div>
+      <h1>Read From Clipboard</h1>
+
+      <input
+        type="text"
+        value={text}
+        onChange={e => setText(e.target.value)}
+      />
+      <button onClick={writeText}>
+        {status.copy === 'resolved' ? 'copied' : 'copy'}
+      </button>
+
+      <input type="text" value={clipboardText} readOnly />
+      <button onClick={async () => setClipboardText(await readText())}>
+        read
+      </button>
+    </div>
+  )
+}
+```

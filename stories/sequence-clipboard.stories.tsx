@@ -28,7 +28,7 @@ const Button = styled.button`
 function SequenceClipboard() {
   const [text, setText] = React.useState('hi')
 
-  const { status, writeText} = useClipboard({
+  const { status, writeText } = useClipboard({
     text,
     timeout: {
       entering: 0,
@@ -37,7 +37,9 @@ function SequenceClipboard() {
     },
   })
 
-  const isCopied = status.copy === 'resolved' && status.transition !== 'exiting'
+  const isCopied = (
+    status.copy === 'resolved' && status.transition !== 'exiting'
+  )
 
   return (
     <div style={{ fontFamily: 'sans-serif' }}>
@@ -54,7 +56,7 @@ function SequenceClipboard() {
       />
       <Button onClick={writeText}>
         <Tooltip $on={isCopied}>
-          {status.copy === 'idle' ? 'copy' : 'copied'}
+          {status.copy === 'resolved' ? 'copied' : 'copy'}
         </Tooltip>
         {isCopied ? '✔️' : '📋'}
       </Button>
@@ -64,7 +66,7 @@ function SequenceClipboard() {
       <h2>Paste Here:</h2>
       <input type="text" />
     </div>
-  );
+  )
 }
 
 const meta: Meta = {
