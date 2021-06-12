@@ -12,7 +12,7 @@ npm install use-clipboard
 import { useClipboard } from 'use-clipboard'
 ```
 
-## usePortal Options
+## useClipboard Options
 
 ```tsx
 interface UseClipboardOptions {
