@@ -21,7 +21,7 @@ interface UseClipboardOptions {
    */
   text?: Text
   /**
-   * Duration for the transition sequence.
+   * Durations for the transition states.
    *
    * Note: If a `number` is provided it will only apply to the
    * `entered` transition state.
