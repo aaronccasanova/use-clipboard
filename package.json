@@ -35,7 +35,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "use-clipboard",
+  "name": "@aaronccasanonva/use-clipboard",
   "author": "Aaron Casanova",
   "module": "dist/use-clipboard.esm.js",
   "size-limit": [
